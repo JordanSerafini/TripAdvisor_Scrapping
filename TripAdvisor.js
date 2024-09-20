@@ -33,7 +33,6 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
             'Referer': 'https://www.google.com/',
         });
 
-        // Anti-detection
         await page.evaluateOnNewDocument(() => {
             Object.defineProperty(navigator, 'webdriver', {
                 get: () => false,
@@ -43,11 +42,9 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
         console.log('Navigating to Tripadvisor...');
         await page.goto('https://www.tripadvisor.fr/', { waitUntil: 'networkidle2' });
 
-        // Attendre que l'input apparaisse
         await page.waitForSelector('input[role="searchbox"]', { visible: true });
         console.log('Remplissage du champ de recherche...');
 
-        // Simuler le remplissage de l'input
         await page.type('input[role="searchbox"]', 'Haylton Auberge d\'Anglefort 1 place la Fontaine 01350 Anglefort');
         await delay(1000, 2000);
 
@@ -55,22 +52,18 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
         console.log('Recherche soumise...');
         await delay(2000, 3000);
 
-        // Simuler un comportement humain (exemple de mouvement de la souris)
         await page.mouse.move(500, 300);
         await delay(500, 1000);
         await page.mouse.move(800, 400);
         await delay(500, 1000);
 
-        // Attendre que le bouton de fermeture apparaisse (avec data-automation="closeModal")
         await page.waitForSelector('button[data-automation="closeModal"]', { visible: true });
         console.log('Bouton de fermeture détecté...');
 
-        // Simuler le clic sur le bouton "Fermer"
         await page.click('button[data-automation="closeModal"]');
         console.log('Clic sur le bouton de fermeture...');
         await delay(2000, 3000);
 
-        // Attendre quelques secondes pour laisser le temps à l'animation de se terminer
         await delay(5000, 6000);
     } catch (error) {
         console.error('Erreur dans le processus:', error);
