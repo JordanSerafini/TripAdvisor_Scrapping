@@ -10,7 +10,7 @@ puppeteer.use(StealthPlugin());
 
 const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.random() * (max - min) + min));
 
-(async () => {
+export default async function googleSearch(data) {
     const browser = await puppeteer.launch({
         headless: false,
         args: [
@@ -47,7 +47,7 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
             await delay(1000, 2000);
         } catch (e) {}
 
-        const searchQuery = 'tripadvisor lac casa annecy 74';
+        const searchQuery = data;
         await page.type('textarea[name="q"]', searchQuery, { delay: 100 });
 
         await page.keyboard.press('Enter');
@@ -60,22 +60,11 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
 
         await delay(5000, 6000);
 
-        try {
-            await page.waitForSelector('textarea[name="q"]', { visible: true, timeout: 15000 });
-            console.log('Pas de CAPTCHA détecté, continuation...');
-        } catch (error) {
-            console.log('CAPTCHA détecté. Attente jusqu\'à ce qu\'il soit résolu...');
-            await page.waitForSelector('textarea[name="q"]', { visible: true });
-            console.log('CAPTCHA résolu, continuation...');
-        }
-
-        await delay(5000, 6000);
-
         await page.waitForSelector('a[href^="mailto:"]', { visible: true });
 
         const email = await page.evaluate(() => {
-            const emailLink = document.querySelector('a[href^="mailto:"]');
-            return emailLink ? emailLink.getAttribute('href').replace('mailto:', '') : null;
+            const emailButton = document.querySelector('a[href^="mailto:"]');
+            return emailButton ? emailButton.getAttribute('href').replace('mailto:', '') : null;
         });
 
         if (email) {
@@ -90,4 +79,4 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
         console.log('Navigateur fermé.');
         await browser.close();
     }
-})();
+};
