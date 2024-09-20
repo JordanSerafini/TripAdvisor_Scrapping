@@ -26,13 +26,11 @@ client.query(query, (err, res) => {
         console.error(err);
         return;
     }
-    // On parcourt chaque ligne et on combine name et address
     for (let row of res.rows) {
         const combined = `${row.name} ${row.address}`;
         list.push(combined);
     }
 
-    // Pour chaque restaurant dans la liste, on appelle googleSearch
     list.forEach((resto, index) => {
         googleSearch(`tripadvisor ${resto}`);
         console.log(`Recherche pour le resto ${index + 1}: tripadvisor ${resto}`);
