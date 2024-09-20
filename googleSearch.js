@@ -69,6 +69,10 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
             console.log('CAPTCHA résolu, continuation...');
         }
 
+        await delay(5000, 6000);
+
+        await page.waitForSelector('a[href^="mailto:"]', { visible: true });
+
         const email = await page.evaluate(() => {
             const emailLink = document.querySelector('a[href^="mailto:"]');
             return emailLink ? emailLink.getAttribute('href').replace('mailto:', '') : null;
