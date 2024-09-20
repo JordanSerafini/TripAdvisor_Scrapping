@@ -11,13 +11,35 @@ puppeteer.use(StealthPlugin());
 const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.random() * (max - min) + min));
 
 (async () => {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({
+        headless: false,
+        args: [
+            '--start-maximized',
+            '--disable-web-security',
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-infobars',
+            '--disable-dev-shm-usage',
+            '--window-size=1920,1080',
+        ],
+    });
     const page = await browser.newPage();
 
     try {
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36');
-        console.log('Navigating to Tripadvisor...');
+        await page.setViewport({ width: 1920, height: 1080 });
+        await page.setExtraHTTPHeaders({
+            'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Referer': 'https://www.google.com/',
+        });
 
+        await page.evaluateOnNewDocument(() => {
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => false,
+            });
+        });
+
+        console.log('Navigating to Tripadvisor...');
         await page.goto('https://www.tripadvisor.fr/', { waitUntil: 'networkidle2' });
 
         await page.waitForSelector('input[role="searchbox"]', { visible: true });
