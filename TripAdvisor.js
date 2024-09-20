@@ -33,6 +33,7 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
             'Referer': 'https://www.google.com/',
         });
 
+        // Anti-detection
         await page.evaluateOnNewDocument(() => {
             Object.defineProperty(navigator, 'webdriver', {
                 get: () => false,
@@ -42,9 +43,11 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
         console.log('Navigating to Tripadvisor...');
         await page.goto('https://www.tripadvisor.fr/', { waitUntil: 'networkidle2' });
 
+        // Attendre que l'input apparaisse
         await page.waitForSelector('input[role="searchbox"]', { visible: true });
         console.log('Remplissage du champ de recherche...');
 
+        // Simuler le remplissage de l'input
         await page.type('input[role="searchbox"]', 'Haylton Auberge d\'Anglefort 1 place la Fontaine 01350 Anglefort');
         await delay(1000, 2000);
 
@@ -52,22 +55,28 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
         console.log('Recherche soumise...');
         await delay(2000, 3000);
 
-        await page.waitForSelector('a[target="_blank"]', { visible: true });
-        console.log('Résultats de recherche chargés...');
+        // Simuler un comportement humain (exemple de mouvement de la souris)
+        await page.mouse.move(500, 300);
+        await delay(500, 1000);
+        await page.mouse.move(800, 400);
+        await delay(500, 1000);
 
-        const resultLinks = await page.$$('a[target="_blank"]');
-        if (resultLinks.length > 1) {
-            await resultLinks[1].click();
-            console.log('Clic sur le deuxième résultat...');
-        } else {
-            console.log('Moins de deux résultats trouvés.');
-        }
+        // Attendre que le bouton de fermeture apparaisse (avec data-automation="closeModal")
+        await page.waitForSelector('button[data-automation="closeModal"]', { visible: true });
+        console.log('Bouton de fermeture détecté...');
 
+        // Simuler le clic sur le bouton "Fermer"
+        await page.click('button[data-automation="closeModal"]');
+        console.log('Clic sur le bouton de fermeture...');
+        await delay(2000, 3000);
+
+        // Attendre quelques secondes pour laisser le temps à l'animation de se terminer
         await delay(5000, 6000);
     } catch (error) {
         console.error('Erreur dans le processus:', error);
     } finally {
-        await browser.close();
+        // Optionnellement, fermer le navigateur
+        // await browser.close();
         console.log('Navigateur fermé.');
     }
 })();
