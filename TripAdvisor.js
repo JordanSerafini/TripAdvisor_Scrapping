@@ -42,14 +42,25 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
         console.log('Navigating to Tripadvisor...');
         await page.goto('https://www.tripadvisor.fr/', { waitUntil: 'networkidle2' });
 
+
+        try {
+            await page.waitForSelector('button[#onetrust-accept-btn-handler"]', { visible: true, timeout: 15000 });
+            await page.click('button[aria-label="Accepter les cookies"]');
+            console.log('Cookies acceptés...');
+            await delay(1000, 2000);
+        } catch (e) {
+            console.log('Aucune pop-up de cookies trouvée ou délai dépassé.');
+        }
+
+
         await page.waitForSelector('input[role="searchbox"]', { visible: true });
         console.log('Remplissage du champ de recherche...');
 
-        await page.type('input[role="searchbox"]', 'Haylton Auberge d\'Anglefort 1 place la Fontaine 01350 Anglefort');
+        await page.type('input[role="searchbox"]', 'Haylton Auberge d\'Anglefort 1 place la Fontaine 01350 Anglefort', { delay: 100 });
         await delay(1000, 2000);
 
-        await page.click('button[type="button"]');
-        console.log('Recherche soumise...');
+        await page.keyboard.press('Enter');
+        console.log('Recherche soumise via Enter...');
         await delay(2000, 3000);
 
         await page.mouse.move(500, 300);
