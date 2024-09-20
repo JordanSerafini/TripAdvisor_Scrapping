@@ -48,7 +48,6 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
         } catch (e) {}
 
         const searchQuery = 'tripadvisor lac casa annecy 74';
-        await page.waitForSelector('textarea[name="q"]', { visible: true });
         await page.type('textarea[name="q"]', searchQuery, { delay: 100 });
 
         await page.keyboard.press('Enter');
@@ -61,9 +60,30 @@ const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.rand
 
         await delay(5000, 6000);
 
+        try {
+            await page.waitForSelector('textarea[name="q"]', { visible: true, timeout: 15000 });
+            console.log('Pas de CAPTCHA détecté, continuation...');
+        } catch (error) {
+            console.log('CAPTCHA détecté. Attente jusqu\'à ce qu\'il soit résolu...');
+            await page.waitForSelector('textarea[name="q"]', { visible: true });
+            console.log('CAPTCHA résolu, continuation...');
+        }
+
+        const email = await page.evaluate(() => {
+            const emailLink = document.querySelector('a[href^="mailto:"]');
+            return emailLink ? emailLink.getAttribute('href').replace('mailto:', '') : null;
+        });
+
+        if (email) {
+            console.log('Email trouvé:', email);
+        } else {
+            console.log('Aucun email trouvé.');
+        }
+
     } catch (error) {
         console.error('Erreur dans le processus:', error);
     } finally {
         console.log('Navigateur fermé.');
+        await browser.close();
     }
 })();
