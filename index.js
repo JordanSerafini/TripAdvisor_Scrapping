@@ -2,6 +2,11 @@ import googleSearch from './googleSearch.js';
 import pkg from 'pg';
 const { Client } = pkg;
 
+// DB_USER=jordans
+// DB_PASS=slitest
+// DB_NAME=scrapping
+// DB_HOST=localhost
+// DB_PORT=5432
 
 const client = new Client({
     user: process.env.DB_USER,
@@ -11,9 +16,27 @@ const client = new Client({
     port: parseInt(process.env.DB_PORT, 10),
 });
 
-console.log(client);
+const query = 'SELECT name, address FROM restaurants';
+const list = [];
 
+client.connect();
 
-const resto = 'les moustaches de zebulon 74 annecy';
+client.query(query, (err, res) => {
+    if (err) {
+        console.error(err);
+        return;
+    }
+    // On parcourt chaque ligne et on combine name et address
+    for (let row of res.rows) {
+        const combined = `${row.name} ${row.address}`;
+        list.push(combined);
+    }
 
-//googleSearch(`tripadvisor ${resto}`);
+    // Pour chaque restaurant dans la liste, on appelle googleSearch
+    list.forEach((resto, index) => {
+        googleSearch(`tripadvisor ${resto}`);
+        console.log(`Recherche pour le resto ${index + 1}: tripadvisor ${resto}`);
+    });
+
+    client.end();
+});
